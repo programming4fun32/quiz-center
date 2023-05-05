@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Create - Quiz Center</title>
+    <style>
+        :root {
+            --accentColor: #000000;
+            --color: #000000;
+            --color2: #e5e5e5;
+            --backgroundColor: #ffffff;
+        }
+
+        * {
+            font-family: arial;
+        }
+
+        body {
+            background-color: var(--backgroundColor);
+        }
+
+        .Qcreate {
+            width: 300px;
+            border-color: var(--color);
+        }
+
+        .Qcreate>input[type="radio"] {
+            appearance: none;
+            border: 1px solid var(--color);
+            width: 25px;
+            height: 25px;
+            accent-color: var(--accentColor);
+            background-color: var(--color2);
+        }
+
+        .Qcreate>input[type="radio"]:checked {
+            background-color: var(--accentColor);
+        }
+
+        .Qcreate>legend>input {
+            color: var(--color);
+            border-color: var(--color);
+            background-color: var(--backgroundColor);
+        }
+
+        input[type="text"] {
+            font-size: 25px;
+            width: 225px;
+            color: var(--color);
+            border-color: var(--color);
+            background-color: var(--color2);
+        }
+
+        input[type="color"] {
+            border-color: var(--color);
+            background-color: var(--color2);
+        }
+
+        label {
+            color: var(--color);
+        }
+
+        button {
+            color: var(--color);
+            background-color: var(--color2);
+            border-color: var(--color);
+        }
+
+        dialog {
+            color: var(--color);
+            background-color: var(--color2);
+            border-color: var(--color);
+        }
+    </style>
+</head>
+
+<body>
+    <label style="font-weight: 700; font-size: 25px;">Create Quiz</label><br><br>
+    <label for="qTitle">Quiz Title: </label>
+    <input id="qTitle" type="text"><br><br>
+    <label for="qAColor">Accent Color: </label>
+    <input id="qAColor" type="color" value="#000000"><br><br>
+    <label for="qColor">Color: </label>
+    <input id="qColor" type="color" value="#000000"><br><br>
+    <label for="q2Color">Color 2: </label>
+    <input id="q2Color" type="color" value="#e5e5e5"><br><br>
+    <label for="qBGColor">Background Color: </label>
+    <input id="qBGColor" type="color" value="#ffffff"><br><br>
+    <button id="qNew">New Question</button>
+    <button id="qDone" onclick="exportQuiz();">Done</button>
+    <dialog id="copyLink">
+        <label style="font-weight: 700; font-size: 25px;">All Done!</label><br><br>
+        <label>Copy your link here: </label>
+        <input id="link" style="font-size: 16px;" type="text">
+        <br><br>
+        <button onclick="document.getElementById('copyLink').close()">Quit</button>
+    </dialog>
+    <script>
+        var qTitle = document.getElementById("qTitle");
+        var qAColor = document.getElementById("qAColor");
+        var qColor = document.getElementById("qColor");
+        var q2Color = document.getElementById("q2Color");
+        var qBGColor = document.getElementById("qBGColor");
+        var qNew = document.getElementById("qNew");
+        var qDone = document.getElementById("qDone");
+        var qCancel = document.getElementById("qCancel");
+        var copyLink = document.getElementById("copyLink");
+        var link = document.getElementById("link");
+        qAColor.setAttribute.value = getComputedStyle(document.documentElement).getPropertyValue("--accentColor");
+        qAColor.setAttribute.value = getComputedStyle(document.documentElement).getPropertyValue("--color");
+        qAColor.setAttribute.value = getComputedStyle(document.documentElement).getPropertyValue("--color2");
+        qAColor.setAttribute.value = getComputedStyle(document.documentElement).getPropertyValue("--backgroundColor");
+
+        function exportQuiz() {
+            var questionsToCopy = []
+            var questionsGET = document.getElementsByClassName("Qcreate");
+            for (let i = 0; i < questionsGET.length; i++) {
+                var Qtitle = questionsGET[i].getElementsByTagName("legend")[0].getElementsByTagName("input")[0].value;
+                var optionsT = questionsGET[i].querySelectorAll(".optionT");
+                var options = questionsGET[i].querySelectorAll(".option");
+                var optionsJSON = [];
+                var num = 0;
+                var correctNum = 0;
+                do {
+                    optionsJSON.push(optionsT[num].value);
+                    if (options[num].checked == true) {
+                        correctNum = num;
+                    }
+                    num += 1;
+                } while (num < optionsT.length);
+                questionsToCopy.push({"title": Qtitle, "options": optionsJSON, "correct": correctNum});
+            }
+            var jsonComponet =
+            {
+                "name": qTitle.value,
+                "questions": questionsToCopy,
+                "style": {
+                    "accentColor": getComputedStyle(document.documentElement).getPropertyValue("--accentColor"),
+                    "color": getComputedStyle(document.documentElement).getPropertyValue("--color"),
+                    "color2": getComputedStyle(document.documentElement).getPropertyValue("--color2"),
+                    "backgroundColor": getComputedStyle(document.documentElement).getPropertyValue("--backgroundColor"),
+                }
+            }
+            link.value = window.location.href.replaceAll("create.html", "index.html") + "?quiz=" + btoa(JSON.stringify(jsonComponet));
+            copyLink.showModal();
+        }
+        var questionID = 0
+        qNew.addEventListener("click", () => {
+            questionID += 1;
+            var p = document.createElement("p");
+            document.body.appendChild(p);
+            var nQArea = document.createElement("fieldset");
+            nQArea.setAttribute("class", "Qcreate")
+            nQArea.setAttribute("id", "questionArea" + questionID)
+            document.body.appendChild(nQArea);
+            var heading = document.createElement("legend");
+            heading.innerHTML = "<input value='Question'>";
+            nQArea.appendChild(heading);
+            var optionButton = document.createElement("button");
+            optionButton.innerHTML = "Add Option";
+            nQArea.appendChild(optionButton);
+            var deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "Delete Question";
+            nQArea.appendChild(deleteButton);
+            var br2 = document.createElement("br");
+            nQArea.appendChild(br2);
+            var Ebr1 = document.createElement("br");
+            nQArea.appendChild(Ebr1);
+            var Echoice = document.createElement("input");
+            Echoice.setAttribute("type", "radio");
+            Echoice.setAttribute("class", "option");
+            Echoice.setAttribute("name", "Qoption" + nQArea.id);
+            Echoice.checked = true;
+            nQArea.appendChild(Echoice);
+            var EchoiceLabel = document.createElement("input");
+            EchoiceLabel.setAttribute("class", "optionT");
+            EchoiceLabel.setAttribute("type", "text");
+            nQArea.appendChild(EchoiceLabel);
+            optionButton.addEventListener("click", () => {
+                var br1 = document.createElement("br");
+                nQArea.appendChild(br1);
+                nQArea.appendChild(Echoice.cloneNode());
+                nQArea.appendChild(EchoiceLabel.cloneNode());
+                EchoiceLabel.cloneNode();
+            });
+            deleteButton.addEventListener("click", () => {
+                p.remove();
+                nQArea.remove();
+            });
+        });
+        qDone.addEventListener("click", () => {
+            var title = qTitle.value;
+        });
+        qAColor.addEventListener("focusout", () => {
+            document.documentElement.style.setProperty("--accentColor", qAColor.value);
+        });
+        qColor.addEventListener("focusout", () => {
+            document.documentElement.style.setProperty("--color", qColor.value);
+        });
+        q2Color.addEventListener("focusout", () => {
+            document.documentElement.style.setProperty("--color2", q2Color.value);
+        });
+        qBGColor.addEventListener("focusout", () => {
+            document.documentElement.style.setProperty("--backgroundColor", qBGColor.value);
+        });
+    </script>
+</body>

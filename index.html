@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Quiz Center</title>
+    <style>
+        :root {
+            --accentColor: #000000;
+            --color: #000000;
+            --color2: #e5e5e5;
+            --backgroundColor: #ffffff;
+        }
+        * {
+            font-family: arial;
+        }
+
+        body {
+            background-color: var(--backgroundColor);
+        }
+
+        fieldset {
+            width: 300px;
+            border-color: var(--color);
+        }
+
+        input[type="radio"] {
+            appearance: none;
+            border: 1px solid var(--color);
+            width: 25px;
+            height: 25px;
+            accent-color: var(--accentColor);
+            background-color: var(--color2);
+        }
+        input[type="radio"]:checked {
+            background-color: var(--accentColor);
+        }
+        legend {
+            color: var(--color);
+        }
+        input[type="text"] {
+            font-size: 25px;
+            width: 225px;
+            color: var(--color);
+            border-color: var(--color);
+            background-color: var(--color2);
+        }
+        label {
+            color: var(--color);
+        }
+        fieldset>label {
+            font-size: 25px;
+        }
+        button {
+            color: var(--color);
+            background-color: var(--color2);
+            border-color: var(--color);
+        }
+        dialog {
+            color: var(--color);
+            background-color: var(--color2);
+            border-color: var(--color);
+        }
+    </style>
+</head>
+
+<body>
+    <button id="createButton" onclick="window.open(window.location.href.replace('index.html', 'create.html').split('?quiz=')[0], '_blank')">Create A Quiz</button>
+    <script>
+        function spawnQuiz(quiz) {
+            var quizName = document.createElement("label");
+            quizName.innerHTML = quiz.name + "<br><br>";
+            quizName.style = "font-weight: 700; font-size: 25px;";
+            document.getElementsByTagName("title")[0].innerHTML = quiz.name + " - Quiz Center";
+            document.body.appendChild(quizName);
+            document.documentElement.style.setProperty("--accentColor", quiz.style.accentColor);
+            document.documentElement.style.setProperty("--color", quiz.style.color);
+            document.documentElement.style.setProperty("--color2", quiz.style.color2);
+            document.documentElement.style.setProperty("--backgroundColor", quiz.style.backgroundColor);
+            for (let i = 0; i < quiz.questions.length; i++) {
+                var questionArea = document.createElement("fieldset");
+                questionArea.setAttribute("id", "question" + i);
+                questionArea.setAttribute("class", "question");
+                document.body.appendChild(questionArea);
+                var questionTitle = document.createElement("legend");
+                questionTitle.innerHTML = quiz.questions[i].title;
+                questionArea.appendChild(questionTitle);
+                var num = 0;
+                do {
+                    var radio = document.createElement("input");
+                    radio.setAttribute("type", "radio");
+                    radio.setAttribute("id", questionArea.id + num);
+                    radio.setAttribute("name", "questionSelect" + i);
+                    questionArea.appendChild(radio);
+                    var label = document.createElement("label");
+                    label.setAttribute("for", radio.id);
+                    label.innerHTML = quiz.questions[i].options[num] + "<br>";
+                    questionArea.appendChild(label);
+                    num += 1;
+                } while (num < quiz.questions[i].options.length);
+                var p = document.createElement("p");
+                document.body.appendChild(p);
+            }
+            var submit = document.createElement("button");
+            submit.innerHTML = "Submit";
+            document.body.appendChild(submit);
+            var score = document.createElement("label");
+            score.innerHTML = "";
+            document.body.appendChild(score);
+            submit.addEventListener("click", () => {
+                var totalCorrect = 0;
+                for (let i = 0; i < quiz.questions.length; i++) {
+                    var num = 0;
+                    var checkedNum = 0;
+                    var questionArea = document.getElementById("question" + i);
+                    var inputs = questionArea.getElementsByTagName("input");
+                    do {
+                        if (inputs[num].type == "radio") {
+                            if (inputs[num].checked == true) {
+                                checkedNum = num;
+                            }
+                        }
+                        num += 1;
+                    } while (num < inputs.length);
+                    var correct = quiz.questions[i].correct;
+                    if (correct == checkedNum) {
+                        totalCorrect += 1;
+                    }
+                }
+                score.innerHTML = " " + totalCorrect + "/" + quiz.questions.length;
+            });
+        }
+        if (window.location.href.indexOf("?quiz=") > -1) {
+            var json = JSON.parse(atob(window.location.href.split("?quiz=")[1]))
+            spawnQuiz(json);
+        }
+    </script>
+</body>
